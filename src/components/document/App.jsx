@@ -4,10 +4,11 @@ import { axiosClient } from "../../api/axios";
 import DocInfos from "./DocInfos";
 import DocComments from "./DocComments";
 import DocSimilaires from "./DocSimilaires";
-import { HashLoader } from "react-spinners";
+import ContentDoc from "./ContentDoc";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
-import ContentDoc from "./ContentDoc";
 
 function App() {
   const { id } = useParams(); // ID du document
@@ -50,7 +51,7 @@ function App() {
         setComments(commentsResponse.data);
         setLoadingComments(false);
       } catch (error) {
-        //
+        Swal.fire("Erreur", "Une erreur est survenue lors du chargement des données.", "error");
       } finally {
         setLoading(false);
       }
@@ -59,13 +60,48 @@ function App() {
     fetchData();
   }, [id]);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <HashLoader size={50} color="#4A90E2" />
-      </div>
-    );
-  }
+  // Skeleton loader pour les informations du document
+  const renderSkeletonDocInfos = () => (
+    <div className="mb-10">
+      <Skeleton height={30} width="50%" className="mb-4" />
+      <Skeleton height={20} width="70%" className="mb-4" />
+      <Skeleton height={20} width="60%" />
+    </div>
+  );
+
+  // Skeleton loader pour le contenu du document
+  const renderSkeletonContent = () => (
+    <div className="mb-10">
+      <Skeleton height={200} />
+    </div>
+  );
+
+  // Skeleton loader pour les commentaires
+  const renderSkeletonComments = () => (
+    <div className="mb-10">
+      <Skeleton height={20} width="40%" className="mb-4" />
+      {Array(3)
+        .fill()
+        .map((_, index) => (
+          <div key={index} className="mb-4">
+            <Skeleton height={20} width="80%" className="mb-2" />
+            <Skeleton height={20} width="90%" />
+          </div>
+        ))}
+    </div>
+  );
+
+  // Skeleton loader pour les documents similaires
+  const renderSkeletonSimilarDocs = () => (
+    <div>
+      <Skeleton height={20} width="50%" className="mb-4" />
+      {Array(3)
+        .fill()
+        .map((_, index) => (
+          <Skeleton key={index} height={100} className="mb-4" />
+        ))}
+    </div>
+  );
 
   return (
     <motion.div
@@ -75,44 +111,37 @@ function App() {
       transition={{ duration: 1 }}
     >
       {/* Informations sur le document */}
-      <div className="mb-10">
-        <DocInfos
-          document={document}
-          likesCount={likesCount}
-          handleLike={handleLike}
-          loadingLikes={loadingLikes}
-        />
-      </div>
+      {loading ? renderSkeletonDocInfos() : (
+        <div className="mb-10">
+          <DocInfos
+            document={document}
+            likesCount={likesCount}
+            handleLike={handleLike}
+            loadingLikes={loadingLikes}
+          />
+        </div>
+      )}
 
-      {/* Contenue du document */}
-      {
-        document?.content ? <div className="mb-10">
-                                <ContentDoc
-                                document={document}
-                                />
-                            </div>
-                            : ''
-      }
-
+      {/* Contenu du document */}
+      {loading ? renderSkeletonContent() : (
+        <div className="mb-10">
+          <ContentDoc document={document} />
+        </div>
+      )}
 
       {/* Commentaires */}
-      <div className="mb-10">
-        {loadingComments ? (
-          <div className="flex justify-center">
-            <HashLoader size={30} color="#4A90E2" />
-          </div>
-        ) : (
+      {loading || loadingComments ? renderSkeletonComments() : (
+        <div className="mb-10">
           <DocComments comments={comments} documentId={document.id} />
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Documents similaires */}
-    <div>
-          {
-            document ? <DocSimilaires moduleId={document.module_id} documentId={document.id} /> : <HashLoader size={30} color="#4A90E2" />
-          }
-
-      </div>
+      {loading ? renderSkeletonSimilarDocs() : (
+        <div>
+          <DocSimilaires moduleId={document.module_id} documentId={document.id} />
+        </div>
+      )}
     </motion.div>
   );
 }

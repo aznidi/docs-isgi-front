@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { axiosClient } from "../../api/axios";
-import { HashLoader } from "react-spinners";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import ModuleInfos from "./ModuleInfos";
 import SearchDocuments from "./SearchDocuments";
 
@@ -20,7 +21,6 @@ function App() {
           const response = await axiosClient.get(`/api/modules/${id}`);
           setModule(response.data);
         } catch (err) {
-          console.error("Erreur lors de la récupération du module :", err);
           setError("Impossible de récupérer les informations du module.");
         } finally {
           setLoading(false);
@@ -31,17 +31,24 @@ function App() {
     }
   }, [id, module]);
 
-  // Afficher un loader pendant le chargement
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <HashLoader size={50} color="#4A90E2" />
-      </div>
-    );
-  }
+  // Skeleton pour les informations du module
+  const renderSkeletonInfos = () => (
+    <div className="mb-8">
+      <Skeleton height={30} width="50%" className="mb-4" />
+      <Skeleton count={3} />
+    </div>
+  );
+
+  // Skeleton pour le moteur de recherche
+  const renderSkeletonSearch = () => (
+    <div className="mt-8">
+      <Skeleton height={25} width="30%" className="mb-4" />
+      <Skeleton height={150} />
+    </div>
+  );
 
   // Afficher un message d'erreur si le module n'existe pas
-  if (error || !module) {
+  if (error || (!loading && !module)) {
     return (
       <div className="container mx-auto py-16 px-6 text-center">
         <h1 className="text-4xl font-bold text-primary-dark mb-4">
@@ -54,14 +61,24 @@ function App() {
     );
   }
 
+  // Afficher le skeleton loader pendant le chargement
+  if (loading) {
+    return (
+      <div className="container mx-auto py-16 px-6">
+        {renderSkeletonInfos()}
+        {renderSkeletonSearch()}
+      </div>
+    );
+  }
+
   // Afficher le contenu du module
   return (
     <div className="container mx-auto py-16 px-6">
       {/* Section : Informations du module */}
-      <ModuleInfos module={module} />
+      {loading ? renderSkeletonInfos() : <ModuleInfos module={module} />}
 
       {/* Section : Moteur de recherche */}
-      <SearchDocuments moduleName={module.nomMod} moduleId={module.id} />
+      {loading ? renderSkeletonSearch() : <SearchDocuments moduleName={module.nomMod} moduleId={module.id} />}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
+import { HashLoader } from "react-spinners";
 
 function RequireAuth({ children }) {
   const { isLoggedIn, loading } = useContext(AuthContext); // Récupérer l'état d'authentification
@@ -10,7 +11,9 @@ function RequireAuth({ children }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p>Chargement...</p>
+        <div className="flex justify-center items-center min-h-screen">
+                <HashLoader size={50} color="#4A90E2" />
+            </div>
       </div>
     );
   }

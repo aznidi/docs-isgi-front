@@ -4,9 +4,10 @@ import { axiosClient } from "../../api/axios"; // Client pour gérer les requêt
 import Slider from "react-slick"; // Bibliothèque pour le slider
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { FaThumbsUp, FaArrowRight } from "react-icons/fa";
-import { HashLoader } from "react-spinners"; // Loader
+import { FaArrowRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import DocumentCard from "../singleModule/DocumentCard";
 
 function Trends() {
@@ -54,13 +55,22 @@ function Trends() {
     ],
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <HashLoader size={50} color="#4A90E2" />
-      </div>
-    );
-  }
+  // Skeleton loader pour le slider
+  const renderSkeletons = () => (
+    <Slider {...sliderSettings} className="gap-6">
+      {Array(3)
+        .fill()
+        .map((_, index) => (
+          <div key={index} className="px-4">
+            <div className="bg-white shadow-md rounded-md p-6 flex flex-col space-y-4">
+              <Skeleton height={200} className="mb-4" />
+              <Skeleton height={20} width="80%" />
+              <Skeleton height={100} width="95%" />
+            </div>
+          </div>
+        ))}
+    </Slider>
+  );
 
   return (
     <div className="container mx-auto py-16 px-6">
@@ -72,7 +82,7 @@ function Trends() {
         transition={{ duration: 0.8 }}
       >
         <h2 className="text-3xl lg:text-4xl font-extrabold text-primary-dark mb-4 flex items-center justify-center gap-2">
-         Documents Les Plus Aimés
+          Documents Les Plus Aimés
         </h2>
         <p className="text-gray-700 text-lg">
           Découvrez les documents les plus appréciés par notre communauté cette
@@ -80,17 +90,18 @@ function Trends() {
         </p>
       </motion.div>
 
-      {/* Slider */}
-      <Slider
-        {...sliderSettings}
-        className="gap-6" // Ajouter un espace entre les cartes
-      >
-        {documents.map((doc) => (
-          <div key={doc.id} className="px-4">
-            <DocumentCard document={doc} />
-          </div>
-        ))}
-      </Slider>
+      {/* Slider avec Skeletons ou contenu réel */}
+      {loading ? (
+        renderSkeletons()
+      ) : (
+        <Slider {...sliderSettings} className="gap-6">
+          {documents.map((doc) => (
+            <div key={doc.id} className="px-4">
+              <DocumentCard document={doc} />
+            </div>
+          ))}
+        </Slider>
+      )}
 
       {/* Bouton voir plus */}
       <div className="flex justify-center mt-10">

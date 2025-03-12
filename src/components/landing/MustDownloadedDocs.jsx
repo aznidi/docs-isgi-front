@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { axiosClient } from "../../api/axios";
-import { HashLoader } from "react-spinners";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import { motion } from "framer-motion";
 import DocumentCard from "../singleModule/DocumentCard"; // Assurez-vous que le composant est correctement importé
 import Slider from "react-slick";
-import { FaDownload, FaArrowRight } from "react-icons/fa";
+import { FaArrowRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 // Configuration du slider
@@ -52,13 +53,28 @@ function MustDownloadedDocs() {
     fetchTopDownloadedDocuments();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <HashLoader size={50} color="#4A90E2" />
-      </div>
-    );
-  }
+  // Fonction pour afficher les skeletons pendant le chargement
+  const renderSkeletons = () => (
+    <Slider {...sliderSettings}>
+      {Array(3)
+        .fill()
+        .map((_, index) => (
+          <motion.div
+            key={index}
+            className="p-4"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="bg-white p-4 rounded-lg shadow-md">
+              <Skeleton height={200} className="mb-4" />
+              <Skeleton height={20} width="80%" className="mb-2" />
+              <Skeleton height={150} width="95%" />
+            </div>
+          </motion.div>
+        ))}
+    </Slider>
+  );
 
   return (
     <div className="container mx-auto py-16 px-6">
@@ -78,7 +94,10 @@ function MustDownloadedDocs() {
         </p>
       </motion.div>
 
-      {topDocuments.length === 0 ? (
+      {/* Liste des documents ou Skeletons */}
+      {loading ? (
+        renderSkeletons()
+      ) : topDocuments.length === 0 ? (
         <motion.p
           className="text-gray-500 text-center"
           initial={{ opacity: 0 }}

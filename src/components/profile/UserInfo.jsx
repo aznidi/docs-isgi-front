@@ -8,6 +8,7 @@ import { HashLoader } from "react-spinners";
 import { axiosClient } from "../../api/axios";
 
 function UserInfo({ user, fetchUserProfile }) {
+    console.log(user)
   return (
     <div className="bg-white shadow-lg rounded-lg p-6 space-y-8 max-w-3xl mx-auto mb-6">
       {/* Section des informations utilisateur */}

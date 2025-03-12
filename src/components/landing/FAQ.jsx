@@ -27,7 +27,7 @@ function FAQ() {
 
         <Accordion type="single" collapsible>
           <AccordionItem value="item-1">
-            <AccordionTrigger className="text-lg font-semibold font-montserrat">
+            <AccordionTrigger className="text-lg font-semibold font-grotesk">
               Quelle est l'utilité d'ISGIDocs ?
             </AccordionTrigger>
             <AccordionContent>
@@ -36,7 +36,7 @@ function FAQ() {
           </AccordionItem>
 
           <AccordionItem value="item-2">
-            <AccordionTrigger className="text-lg font-semibold font-montserrat">
+            <AccordionTrigger className="text-lg font-semibold font-grotesk">
               Comment puis-je accéder aux documents ?
             </AccordionTrigger>
             <AccordionContent>
@@ -45,7 +45,7 @@ function FAQ() {
           </AccordionItem>
 
           <AccordionItem value="item-3">
-            <AccordionTrigger className="text-lg font-semibold font-montserrat">
+            <AccordionTrigger className="text-lg font-semibold font-grotesk">
               Est-ce que les documents sont gratuits ?
             </AccordionTrigger>
             <AccordionContent>
@@ -54,7 +54,7 @@ function FAQ() {
           </AccordionItem>
 
           <AccordionItem value="item-4">
-            <AccordionTrigger className="text-lg font-semibold font-montserrat">
+            <AccordionTrigger className="text-lg font-semibold font-grotesk">
               Comment puis-je contacter le support ?
             </AccordionTrigger>
             <AccordionContent>
@@ -66,7 +66,7 @@ function FAQ() {
 
       {/* Image SVG */}
       <motion.div
-        className="lg:w-1/2 w-full flex justify-center lg:block hidden"
+        className="lg:w-1/2 w-full justify-center lg:block hidden"
         initial={{ opacity: 0, x: 50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8 }}

@@ -2,27 +2,19 @@ import React, { useState, useEffect } from "react";
 import { FaHeart, FaVideo, FaDownload, FaStar } from "react-icons/fa";
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import { axiosClient } from "../../api/axios";
 import { HashLoader } from "react-spinners";
 
 function DocInfos({ document }) {
-  // Vérifiez si `document` est nul ou indéfini
-  if (!document) {
-    return (
-      <div className="flex justify-center items-center py-6">
-        <HashLoader size={30} color="#4A90E2" />
-      </div>
-    );
-  }
-
   const [isLiked, setIsLiked] = useState(false); // Suivi de l'état du like
   const [likesCount, setLikesCount] = useState(null); // Compteur des likes
   const [isLoadingLike, setIsLoadingLike] = useState(false); // Loader pour les likes
   const [isFavorite, setIsFavorite] = useState(false); // État pour les favoris
   const [isLoadingFav, setIsLoadingFav] = useState(false);
 
-
-  // Récupérer les likes lors du montage du composant
+  // Récupérer les likes, l'état du like et l'état des favoris
   useEffect(() => {
     const fetchLikes = async () => {
       try {
@@ -42,18 +34,14 @@ function DocInfos({ document }) {
       }
     };
 
-
     const checkFavoriteStatus = async () => {
-        try {
-          const response = await axiosClient.get(`/api/documents/${document.id}/is-favorite`);
-          setIsFavorite(response.data.isFavorite);
-        } catch (error) {
-          //
-        } finally {
-          //
-        }
+      try {
+        const response = await axiosClient.get(`/api/documents/${document.id}/is-favorite`);
+        setIsFavorite(response.data.isFavorite);
+      } catch (error) {
+        console.error("Erreur lors de la vérification des favoris :", error);
+      }
     };
-
 
     fetchLikes();
     fetchLikeState();
@@ -78,24 +66,31 @@ function DocInfos({ document }) {
     }
   };
 
-
   const toggleFavorite = async () => {
     try {
-        setIsLoadingFav(true);
-        const response = await axiosClient.post(`/api/documents/${document.id}/favorite`);
-        if (response.data.status === "added") {
-            setIsFavorite(true);
-            Swal.fire("Succès", "Document ajouté aux favoris", "success");
-        } else if (response.data.status === "removed") {
-            setIsFavorite(false);
-            Swal.fire("Succès", "Document retiré des favoris", "success");
-        }
+      setIsLoadingFav(true);
+      const response = await axiosClient.post(`/api/documents/${document.id}/favorite`);
+      if (response.data.status === "added") {
+        setIsFavorite(true);
+        Swal.fire("Succès", "Document ajouté aux favoris", "success");
+      } else if (response.data.status === "removed") {
+        setIsFavorite(false);
+        Swal.fire("Succès", "Document retiré des favoris", "success");
+      }
     } catch (error) {
-        Swal.fire("Erreur", "Impossible de mettre à jour les favoris", "error");
-    }finally{
-        setIsLoadingFav(false);
+      Swal.fire("Erreur", "Impossible de mettre à jour les favoris", "error");
+    } finally {
+      setIsLoadingFav(false);
     }
   };
+
+  if (!document) {
+    return (
+      <div className="flex justify-center items-center py-6">
+        <HashLoader size={30} color="#4A90E2" />
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -104,35 +99,51 @@ function DocInfos({ document }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
     >
-      {/* Image du module */}
-      {document.module?.imageMod && (
-        <div className="h-48 bg-gray-100 flex justify-center items-center">
+      {/* Image du module avec skeleton */}
+      <div className="h-48 bg-gray-100 flex justify-center items-center">
+        {document.module?.imageMod ? (
           <img
             src={`http://localhost:8000/storage/${document.module.imageMod}`}
             alt={document.module.nomMod}
             className="h-full w-auto object-contain"
           />
-        </div>
-      )}
+        ) : (
+          <Skeleton height={200} />
+        )}
+      </div>
 
-      {/* Titre et description */}
+      {/* Titre et description avec skeleton */}
       <div className="space-y-4">
-        <h1 className="text-4xl font-bold text-primary-dark">{document.libelleDoc}</h1>
-        <p className="text-gray-600 italic text-lg">{document.nomDoc.replace(/_/g, " ")}</p>
+        {document.libelleDoc ? (
+          <h1 className="text-4xl font-bold text-primary-dark">{document.libelleDoc}</h1>
+        ) : (
+          <Skeleton height={30} width="50%" />
+        )}
+        {document.nomDoc ? (
+          <p className="text-gray-600 italic text-lg">{document.nomDoc.replace(/_/g, " ")}</p>
+        ) : (
+          <Skeleton height={20} width="70%" />
+        )}
       </div>
 
       {/* Description complète */}
-      <p className="text-gray-700 text-base leading-relaxed">{document.descriptionDoc}</p>
+      {document.descriptionDoc ? (
+        <p className="text-gray-700 text-base leading-relaxed">{document.descriptionDoc}</p>
+      ) : (
+        <Skeleton height={20} count={3} />
+      )}
 
       {/* Informations supplémentaires */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <p className="flex items-center text-gray-700">
           <FaVideo className="mr-2 text-blue-500" />
-          <strong>Type :</strong> {document.type.toUpperCase()}
+          <strong>Type :</strong>{" "}
+          {document.type ? document.type.toUpperCase() : <Skeleton width="40%" />}
         </p>
         <p className="flex items-center text-gray-700">
           <FaDownload className="mr-2 text-green-500" />
-          <strong>Module :</strong> {document.module?.nomMod || "N/A"}
+          <strong>Module :</strong>{" "}
+          {document.module?.nomMod || <Skeleton width="50%" />}
         </p>
       </div>
 
@@ -177,30 +188,28 @@ function DocInfos({ document }) {
               <span>{isLiked ? "Je n'aime plus" : "J'aime"}</span>
             </>
           )}
-          <span className="text-md  text-primary-dark px-2 py-1 rounded-md font-bold ml-2">
-            {likesCount }
+          <span className="text-md text-primary-dark px-2 py-1 rounded-md font-bold ml-2">
+            {likesCount !== null ? likesCount : <Skeleton width="20%" />}
           </span>
         </button>
 
         <button
-            onClick={toggleFavorite}
-            className={`px-4 py-2 rounded-lg flex items-center justify-center space-x-2 ${
+          onClick={toggleFavorite}
+          className={`px-4 py-2 rounded-lg flex items-center justify-center space-x-2 ${
             isFavorite ? "bg-yellow-500 text-white" : "bg-gray-300 text-gray-700"
-            }`}
+          }`}
+          disabled={isLoadingFav}
         >
-            {
-                isLoadingFav ? <HashLoader size={20} color="#FFFFFF" />
-                 : (
-                    <>
-                        <FaStar />
-                        <span>{isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}</span>
-                    </>
-                 )
-            }
-
+          {isLoadingFav ? (
+            <HashLoader size={20} color="#FFFFFF" />
+          ) : (
+            <>
+              <FaStar />
+              <span>{isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}</span>
+            </>
+          )}
         </button>
       </div>
-
     </motion.div>
   );
 }

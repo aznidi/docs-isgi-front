@@ -38,6 +38,21 @@ import EditExercise from "../components/admin/exercices/EditExercise"; // Modifi
 import PricingPage from "../pages/PricingPage";
 import SinglePlanPricing from "../components/pricing/SinglePlanPricing";
 import DocumentsUserPage from "../pages/DocumentsUserPage";
+import EFMUserPage from "../pages/EFMUserPage";
+import EFFuserPage from "../pages/EFFuserPage";
+import ControlesUserPage from "../pages/ControlesUserPage";
+
+// Exams
+import AppEFM from '../components/admin/exams/efm/AppEFM';
+import AddEFM from '../components/admin/exams/efm/AddEFM';
+import EditEFM from '../components/admin/exams/efm/EditEFM';
+import AppEFF from '../components/admin/exams/eff/AppEFF';
+import AddEFF from '../components/admin/exams/eff/AddEFF';
+import EditEFF from '../components/admin/exams/eff/EditEFF';
+import AppControl from '../components/admin/exams/controles/AppControl';
+import AddControl from '../components/admin/exams/controles/AddControl';
+import EditControl from '../components/admin/exams/controles/EditControl';
+import Support from "../pages/Support/Support";
 
 // Routes
 export const HOME_ROUTE = "/";
@@ -141,6 +156,30 @@ export const router = createBrowserRouter([
           </RequireAuth>
         ),
       },
+      {
+        path: "/examens/efm",
+        element: (
+          <RequireAuth>
+            <EFMUserPage />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: "/examens/eff",
+        element: (
+          <RequireAuth>
+            <EFFuserPage />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: "/examens/controles",
+        element: (
+          <RequireAuth>
+            <ControlesUserPage />
+          </RequireAuth>
+        ),
+      },
       { path: "/contact-support", element: <ContactSupportPage /> },
       { path: "/founders", element: <Founders /> },
       { path: "/pricing", element: <PricingPage /> },
@@ -150,25 +189,42 @@ export const router = createBrowserRouter([
   },
 
   // Routes pour l'administration
-  {
-    element: (
-      <RequireAdmin>
-        <AdminLayout />
-      </RequireAdmin>
-    ),
-    children: [
-      { path: "/admin/dashboard", element: <AdminDashboardPage /> },
-      { path: "/admin/users", element: <UsersPage /> },
-      { path: "/admin/profile", element: <ProfileAdmin /> },
-      { path: "/admin/settings", element: <SettingsPage /> },
-      { path: "/admin/modules", element: <ModulesPage /> },
-      { path: "/admin/documents", element: <DocumentsAdminPage /> },
-      { path: "/admin/documents/add", element: <AddDocument /> },
-      { path: "/admin/documents/edit/:id", element: <EditDocument /> },
-      { path: "/admin/exercises", element: <AdminExercisesPage /> }, // Gestion des exercices
-      { path: "/admin/exercises/add", element: <AddExercise /> },
-      { path: "/admin/exercises/edit/:id", element: <EditExercise /> },
-      { path: "*", element: <NotFoundPage /> },
-    ],
-  },
+    {
+        element: (
+        <RequireAdmin>
+            <AdminLayout />
+        </RequireAdmin>
+        ),
+        children: [
+        { path: "/admin/dashboard", element: <AdminDashboardPage /> },
+        { path: "/admin/users", element: <UsersPage /> },
+        { path: "/admin/profile", element: <ProfileAdmin /> },
+        { path: "/admin/settings", element: <SettingsPage /> },
+        { path: "/admin/modules", element: <ModulesPage /> },
+        { path: "/admin/documents", element: <DocumentsAdminPage /> },
+        { path: "/admin/documents/add", element: <AddDocument /> },
+        { path: "/admin/documents/edit/:id", element: <EditDocument /> },
+        { path: "/admin/exercises", element: <AdminExercisesPage /> }, // Gestion des exercices
+        { path: "/admin/exercises/add", element: <AddExercise /> },
+        { path: "/admin/exercises/edit/:id", element: <EditExercise /> },
+
+        // Gestion des examens
+        { path: "/admin/exams/efm", element: <AppEFM /> }, // Liste des examens EFM
+        { path: "/admin/exams/efm/add", element: <AddEFM /> }, // Ajouter un EFM
+        { path: "/admin/exams/efm/edit/:id", element: <EditEFM /> }, // Modifier un EFM
+
+        { path: "/admin/exams/eff", element: <AppEFF /> }, // Liste des examens EFF
+        { path: "/admin/exams/eff/add", element: <AddEFF /> }, // Ajouter un EFF
+        { path: "/admin/exams/eff/edit/:id", element: <EditEFF /> }, // Modifier un EFF
+
+        { path: "/admin/exams/controls", element: <AppControl /> }, // Liste des contrôles
+        { path: "/admin/exams/controls/add", element: <AddControl /> }, // Ajouter un contrôle
+        { path: "/admin/exams/controls/edit/:id", element: <EditControl /> }, // Modifier un contrôle
+
+
+        // Support
+        { path: "/admin/support", element: <Support /> }, // Modifier un contrôle
+        { path: "*", element: <NotFoundPage /> },
+        ],
+    },
 ]);

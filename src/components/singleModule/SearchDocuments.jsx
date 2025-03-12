@@ -4,7 +4,8 @@ import * as Yup from "yup";
 import { motion } from "framer-motion";
 import { FaSearch } from "react-icons/fa";
 import DocumentCard from "./DocumentCard";
-import { HashLoader } from "react-spinners";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import { axiosClient } from "../../api/axios";
 
 function SearchDocuments({ moduleId, moduleName }) {
@@ -27,7 +28,7 @@ function SearchDocuments({ moduleId, moduleName }) {
         params: { query: values.query },
       });
       setResults(response.data);
-      console.log(response.data);
+
     } catch (error) {
       console.error("Erreur lors de la recherche :", error);
     } finally {
@@ -35,6 +36,26 @@ function SearchDocuments({ moduleId, moduleName }) {
       setSubmitting(false); // Terminer le formulaire
     }
   };
+
+  // Skeleton loader pour les résultats
+  const renderSkeletonResults = () => (
+    <motion.div
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+    >
+      {Array(3)
+        .fill()
+        .map((_, index) => (
+          <div key={index} className="p-4 bg-white shadow rounded-lg">
+            <Skeleton height={200} className="mb-4" />
+            <Skeleton height={20} width="80%" className="mb-2" />
+            <Skeleton height={20} width="60%" />
+          </div>
+        ))}
+    </motion.div>
+  );
 
   return (
     <div className="container mx-auto py-16 px-6">
@@ -93,11 +114,9 @@ function SearchDocuments({ moduleId, moduleName }) {
         )}
       </Formik>
 
-      {/* Résultats ou Loader */}
+      {/* Résultats ou Skeleton Loader */}
       {loading ? (
-        <div className="flex justify-center items-center py-10">
-          <HashLoader size={40} color="#4A90E2" />
-        </div>
+        renderSkeletonResults()
       ) : (
         <motion.div
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"

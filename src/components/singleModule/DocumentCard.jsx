@@ -34,7 +34,7 @@ function DocumentCard({ document }) {
         <p className="text-gray-600 text-sm italic">{formattedNomDoc}</p>
 
         {/* Description */}
-        <p className="text-gray-700 text-base leading-relaxed">{document.descriptionDoc}</p>
+        <p className="text-gray-700 text-base leading-relaxed truncated-text" >{document.descriptionDoc}</p>
 
         {/* Bouton d'action */}
         <div className="mt-4">

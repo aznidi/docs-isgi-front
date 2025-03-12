@@ -1,63 +1,70 @@
-import React from "react";
-import { Bar, Doughnut, Line } from "react-chartjs-2";
+import React, { useEffect, useState } from "react";
+import { Bar, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   BarElement,
-  ArcElement,
-  Tooltip,
-  Legend,
   CategoryScale,
   LinearScale,
   LineElement,
+  Tooltip,
   PointElement,
 } from "chart.js";
-import { FaUsers, FaFileAlt, FaChartLine, FaStar, FaFileDownload } from "react-icons/fa";
+
+// Import des icônes et images
+import users from '../assets/images/equipe.png';
+import documents from '../assets/images/document.png';
+import telecharger from '../assets/images/telecharger.png';
+import favoris from '../assets/images/ajouter-aux-favoris.png';
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+import { motion } from "framer-motion";
+import { axiosClient } from "../api/axios";
 
 ChartJS.register(
   BarElement,
-  ArcElement,
-  Tooltip,
-  Legend,
   CategoryScale,
   LinearScale,
   LineElement,
+  Tooltip,
   PointElement
 );
 
 function AdminDashboardPage() {
-  // Données statiques enrichies
-  const modules = [
-    { id: 1, name: "React", nbDocuments: 12, downloads: 500 },
-    { id: 2, name: "Node.js", nbDocuments: 8, downloads: 300 },
-    { id: 3, name: "Laravel", nbDocuments: 15, downloads: 700 },
-    { id: 4, name: "Python", nbDocuments: 10, downloads: 450 },
-  ];
+  const [statistics, setStatistics] = useState(null); // Statistiques générales
+  const [topModules, setTopModules] = useState([]); // Modules populaires
+  const [topDownloads, setTopDownloads] = useState([]); // Documents téléchargés
+  const [loading, setLoading] = useState(true); // Loader
 
-  const recentUsers = [
-    { id: 1, name: "Alice Dupont", role: "Étudiant" },
-    { id: 2, name: "John Doe", role: "Enseignant" },
-    { id: 3, name: "Marie Curie", role: "Étudiant" },
-  ];
+  // Charger les données des statistiques
+  useEffect(() => {
+    const fetchStatistics = async () => {
+      try {
+        setLoading(true);
+        const generalStats = await axiosClient.get("/api/public/statistics/general");
+        const modules = await axiosClient.get("/api/public/statistics/top-downloaded-documents");
+        const downloads = await axiosClient.get("/api/public/statistics/top-liked-documents");
+
+        setStatistics(generalStats.data);
+        setTopModules(modules.data.topDownloadedDocuments);
+        setTopDownloads(downloads.data.topLikedDocuments);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des données :", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStatistics();
+  }, []);
 
   const barChartData = {
-    labels: modules.map((module) => module.name),
+    labels: topModules.map((module) => module.name || "N/A"),
     datasets: [
       {
         label: "Documents téléchargés",
-        data: modules.map((module) => module.downloads),
-        backgroundColor: ["#4A90E2", "#36A2EB", "#FFCE56", "#FF6384"],
+        data: topModules.map((module) => module.nbTelechargements || 0),
+        backgroundColor: "#2563EB", // Couleur principale
         borderWidth: 1,
-      },
-    ],
-  };
-
-  const doughnutChartData = {
-    labels: ["Cours", "TP", "Examens", "EFM"],
-    datasets: [
-      {
-        data: [50, 30, 15, 5],
-        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"],
-        hoverOffset: 4,
       },
     ],
   };
@@ -68,83 +75,143 @@ function AdminDashboardPage() {
       {
         label: "Téléchargements Mensuels",
         data: [100, 200, 150, 300, 250, 400, 350, 500, 450],
-        borderColor: "#4A90E2",
-        backgroundColor: "rgba(74, 144, 226, 0.2)",
+        borderColor: "#1E40AF", // Couleur secondaire sombre
+        backgroundColor: "rgba(37, 99, 235, 0.2)", // Couleur secondaire claire
         fill: true,
         tension: 0.4,
       },
     ],
   };
 
+  const cardAnimation = {
+    whileHover: { y: -2 },
+  };
+
   return (
     <div className="container mx-auto p-6">
-      <h2 className="text-4xl font-bold mb-6 text-center text-gray-800">Tableau de Bord Admin</h2>
+      {/* Titre principal */}
+      <h2 className="text-3xl lg:text-4xl font-extrabold mb-6 text-center text-primary-dark">
+        Tableau de Bord Admin
+      </h2>
 
-      {/* Statistiques principales */}
+      {/* Skeleton ou Statistiques principales */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <div className="bg-white shadow-lg rounded-lg p-6 text-center">
-          <FaUsers className="text-blue-500 text-4xl mx-auto mb-4" />
-          <h3 className="text-2xl font-bold text-gray-800">1,200+</h3>
-          <p className="text-gray-600">Utilisateurs</p>
-        </div>
-        <div className="bg-white shadow-lg rounded-lg p-6 text-center">
-          <FaFileAlt className="text-green-500 text-4xl mx-auto mb-4" />
-          <h3 className="text-2xl font-bold text-gray-800">5,000+</h3>
-          <p className="text-gray-600">Documents</p>
-        </div>
-        <div className="bg-white shadow-lg rounded-lg p-6 text-center">
-          <FaFileDownload className="text-red-500 text-4xl mx-auto mb-4" />
-          <h3 className="text-2xl font-bold text-gray-800">25,000+</h3>
-          <p className="text-gray-600">Téléchargements</p>
-        </div>
-        <div className="bg-white shadow-lg rounded-lg p-6 text-center">
-          <FaStar className="text-yellow-500 text-4xl mx-auto mb-4" />
-          <h3 className="text-2xl font-bold text-gray-800">30+</h3>
-          <p className="text-gray-600">Modules</p>
-        </div>
+        {loading ? (
+          Array(4)
+            .fill()
+            .map((_, index) => (
+              <div
+                key={index}
+                className="bg-white shadow-lg rounded-lg p-6 text-center"
+              >
+                <Skeleton circle={true} height={50} width={50} className="mb-4 mx-auto" />
+                <Skeleton height={20} width="50%" className="mx-auto" />
+                <Skeleton height={15} width="70%" className="mx-auto mt-2" />
+              </div>
+            ))
+        ) : (
+          <>
+            <motion.div
+              className="bg-gradient-to-r from-blue-500 to-blue-400 text-white shadow-lg rounded-lg p-6 text-center"
+              {...cardAnimation}
+            >
+              <img src={users} className="w-16 h-16" />
+              <h3 className="text-2xl font-bold">
+                {statistics?.usersCount || 0}
+              </h3>
+              <p>Utilisateurs</p>
+            </motion.div>
+            <motion.div
+              className="bg-gradient-to-r from-green-500 to-green-400 text-white shadow-lg rounded-lg p-6 text-center"
+              {...cardAnimation}
+            >
+              <img src={documents} className="w-16 h-16" />
+              <h3 className="text-2xl font-bold">
+                {statistics?.documentsCount || 0}
+              </h3>
+              <p>Documents</p>
+            </motion.div>
+            <motion.div
+              className="bg-gradient-to-r from-red-500 to-red-400 text-white shadow-lg rounded-lg p-6 text-center"
+              {...cardAnimation}
+            >
+              <img src={telecharger} className="w-16 h-16" />
+              <h3 className="text-2xl font-bold">
+                {statistics?.totalDownloads || 0}
+              </h3>
+              <p>Téléchargements</p>
+            </motion.div>
+            <motion.div
+              className="bg-gradient-to-r from-yellow-500 to-yellow-400 text-white shadow-lg rounded-lg p-6 text-center"
+              {...cardAnimation}
+            >
+              <img src={favoris} className="w-16 h-16" />
+              <h3 className="text-2xl font-bold">
+                {statistics?.favoritesCount || 0}
+              </h3>
+              <p>Favoris</p>
+            </motion.div>
+          </>
+        )}
       </div>
 
       {/* Graphiques */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Bar Chart */}
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          <h3 className="text-xl font-bold mb-4">Documents Téléchargés par Module</h3>
-          <Bar data={barChartData} />
-        </div>
+        <motion.div
+          className="bg-white shadow-lg rounded-lg p-6"
+          {...cardAnimation}
+        >
+          <h3 className="text-xl font-bold mb-4 text-gray-800">
+            Modules Populaires
+          </h3>
+          {loading ? (
+            <Skeleton height={250} />
+          ) : (
+            <Bar data={barChartData} />
+          )}
+        </motion.div>
 
-        {/* Doughnut Chart */}
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          <h3 className="text-xl font-bold mb-4">Répartition des Types de Documents</h3>
-          <Doughnut data={doughnutChartData} />
-        </div>
+        {/* Line Chart */}
+        <motion.div
+          className="bg-white shadow-lg rounded-lg p-6"
+          {...cardAnimation}
+        >
+          <h3 className="text-xl font-bold mb-4 text-gray-800">
+            Téléchargements Mensuels
+          </h3>
+          {loading ? (
+            <Skeleton height={250} />
+          ) : (
+            <Line data={lineChartData} />
+          )}
+        </motion.div>
       </div>
 
-      {/* Line Chart */}
-      <div className="bg-white shadow-lg rounded-lg p-6 mt-6">
-        <h3 className="text-xl font-bold mb-4">Téléchargements Mensuels</h3>
-        <Line data={lineChartData} />
-      </div>
-
-      {/* Liste des utilisateurs récents */}
-      <div className="bg-white shadow-lg rounded-lg p-6 mt-6">
-        <h3 className="text-xl font-bold mb-4">Utilisateurs Récents</h3>
-        <table className="min-w-full text-sm text-left text-gray-500">
-          <thead className="bg-gray-200 text-gray-700 uppercase text-sm">
-            <tr>
-              <th className="px-6 py-3">Nom</th>
-              <th className="px-6 py-3">Rôle</th>
-            </tr>
-          </thead>
-          <tbody>
-            {recentUsers.map((user) => (
-              <tr key={user.id} className="border-b hover:bg-gray-100">
-                <td className="px-6 py-4">{user.name}</td>
-                <td className="px-6 py-4">{user.role}</td>
-              </tr>
+      {/* Documents populaires */}
+      <motion.div
+        className="bg-white shadow-lg rounded-lg p-6 mt-6"
+        {...cardAnimation}
+      >
+        <h3 className="text-xl font-bold mb-4 text-gray-800">
+          Documents Les Plus Aimés
+        </h3>
+        {loading ? (
+          <Skeleton count={3} height={50} className="mb-4" />
+        ) : (
+          <ul className="space-y-4">
+            {topDownloads.map((doc) => (
+              <li
+                key={doc.id}
+                className="flex justify-between items-center p-4 border-b"
+              >
+                <span className="text-gray-700">{doc.nomDoc || "Document"}</span>
+                <span className="text-blue-500 font-bold">{doc.likes} Likes</span>
+              </li>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </ul>
+        )}
+      </motion.div>
     </div>
   );
 }

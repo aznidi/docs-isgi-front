@@ -32,3 +32,11 @@
     scrollbar-width: thin; /* Barre fine */
     scrollbar-color: #4f46e5 #f3f4f6; /* Thumb | Track */
   }
+
+  .truncated-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Limite à 3 lignes */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Ajoute "..." à la fin */
+  }
